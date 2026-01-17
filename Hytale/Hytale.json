@@ -1,69 +1,103 @@
 {
-  "name": "Hytale",
-  "display": "Hytale Server",
-  "type": "none",
-  "install": [
-    {
-      "commands": [
-        "echo '--- INSTALL START ---'",
-        "echo '1. Downloading Hytale Downloader...'",
-        "curl -L -o hytale-downloader.zip https://downloader.hytale.com/hytale-downloader.zip",
-        "unzip -o hytale-downloader.zip",
-        "chmod +x hytale-downloader-linux-amd64",
-        "mv hytale-downloader-linux-amd64 hytale-downloader",
-        "rm hytale-downloader.zip",
-        "echo '2. Downloading Game Files...'",
-        "./hytale-downloader -skip-update-check -download-path game.zip",
-        "unzip -o game.zip",
-        "echo '3. Downloading Java 25...'",
-        "curl -L -o java25.tar.gz https://api.adoptium.net/v3/binary/latest/25/ga/linux/x64/jdk/hotspot/normal/eclipse",
-        "mkdir -p local_java",
-        "tar -xzf java25.tar.gz -C local_java --strip-components=1",
-        "chmod +x local_java/bin/java",
-        "rm java25.tar.gz",
-        "echo '--- INSTALL COMPLETE ---'"
-      ],
-      "type": "command"
-    }
-  ],
-  "run": {
-    "stop": "/stop",
-    "command": "../local_java/bin/java -Xms1G -Xmx${ram}G -jar HytaleServer.jar --assets ../Assets.zip --disable-sentry --auth-mode authenticated --bind 0.0.0.0:${port} --backup --backup-dir ../Backups --backup-frequency 30",
-    "workingDirectory": "Server",
-    "pre": [],
-    "post": [],
-    "environmentVars": {
-      "port": "${port}",
-      "ram": "${ram}"
-    }
-  },
+  "name": "hytale",
+  "display": "Hytale",
+  "type": "hytale",
   "data": {
+    "ip": {
+      "type": "string",
+      "value": "0.0.0.0",
+      "display": "IP",
+      "desc": "What IP to bind the server to",
+      "required": true,
+      "userEdit": false
+    },
     "port": {
       "type": "integer",
+      "value": 5520,
       "display": "Port",
-      "value": 5520
+      "desc": "What port to bind the server to",
+      "required": true,
+      "userEdit": false
     },
     "ram": {
       "type": "integer",
+      "value": 4,
       "display": "RAM (GB)",
-      "value": 4
+      "desc": "How much memory in GB to allocate",
+      "required": true,
+      "userEdit": true
+    },
+    "javaversion": {
+      "type": "string",
+      "value": "25",
+      "display": "Java Version",
+      "desc": "Version of Java to use",
+      "required": true,
+      "userEdit": true
+    },
+    "jvmArgs": {
+      "type": "string",
+      "value": "-Xms1G",
+      "display": "JVM Arguments",
+      "desc": "Extra JVM arguments",
+      "required": false,
+      "userEdit": true
     }
   },
+  "install": [
+    {
+      "type": "javadl",
+      "version": "${javaversion}"
+    },
+    {
+      "type": "download",
+      "files": [
+        "https://downloader.hytale.com/hytale-downloader.zip"
+      ]
+    },
+    {
+      "type": "extract",
+      "file": "hytale-downloader.zip"
+    },
+    {
+      "type": "command",
+      "commands": [
+        "chmod +x hytale-downloader-linux-amd64",
+        "./hytale-downloader-linux-amd64 -skip-update-check -download-path game.zip"
+      ]
+    },
+    {
+      "type": "extract",
+      "file": "game.zip"
+    }
+  ],
+  "run": {
+    "command": "java${javaversion} ${jvmArgs} -Xmx${ram}G -jar HytaleServer.jar --assets Assets.zip --disable-sentry --auth-mode authenticated --bind ${ip}:${port} --backup --backup-dir ../Backups --backup-frequency 30",
+    "stop": "/stop",
+    "workingDirectory": "Server",
+    "pre": [],
+    "post": []
+  },
   "environment": {
-    "type": "standard"
+    "type": "host"
   },
   "supportedEnvironments": [
     {
-      "type": "standard"
+      "type": "host"
+    },
+    {
+      "type": "docker",
+      "image": "eclipse-temurin:25",
+      "portBindings": [
+        "0.0.0.0:${port}:${port}/udp"
+      ]
     }
   ],
   "requirements": {
     "binaries": [
-      "curl",
-      "tar",
       "unzip"
     ],
     "os": "linux",
     "arch": "amd64"
   }
-} 
+}
