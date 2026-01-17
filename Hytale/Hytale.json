@@ -1,7 +1,7 @@
 {
   "name": "hytale",
   "display": "Hytale",
-  "type": "hytale",
+  "type": "none",
   "data": {
     "ip": {
       "type": "string",
@@ -79,9 +79,12 @@
     "post": []
   },
   "environment": {
-    "type": "host"
+    "type": "standard"
   },
   "supportedEnvironments": [
+    {
+      "type": "standard"
+    },
     {
       "type": "host"
     },
