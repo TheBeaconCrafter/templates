@@ -1,0 +1,98 @@
+{
+    "type": "voice",
+    "display": "TeamSpeak 6 Server - amd64",
+    "data": {
+        "extra_args": {
+            "type": "string",
+            "value": "",
+            "display": "Extra Args",
+            "desc": "Optional extra CLI args passed to tsserver.",
+            "required": false,
+            "userEdit": false
+        },
+        "file_port": {
+            "type": "integer",
+            "value": 30033,
+            "display": "File Transfer Port (TCP)",
+            "desc": "Default: 30033",
+            "required": true,
+            "userEdit": false
+        },
+        "ts6_version": {
+            "type": "string",
+            "value": "6.0.0-beta8",
+            "display": "TS6 Version",
+            "desc": "Example: 6.0.0-beta8",
+            "required": true,
+            "userEdit": false
+        },
+        "ts6_version_tag": {
+            "type": "string",
+            "value": "6.0.0%2Fbeta8",
+            "display": "TS6 Version Tag (GitHub)",
+            "desc": "Example: 6.0.0%2Fbeta8 (tag is v6.0.0/beta8; / becomes %2F)",
+            "required": true,
+            "userEdit": false
+        },
+        "voice_port": {
+            "type": "integer",
+            "value": 9987,
+            "display": "Voice Port (UDP)",
+            "desc": "Default: 9987",
+            "required": true,
+            "userEdit": false
+        }
+    },
+    "install": [
+        {
+            "type": "download",
+            "files": [
+                "https://github.com/teamspeak/teamspeak6-server/releases/download/v${ts6_version_tag}/teamspeak-server_linux_amd64-v${ts6_version}.tar.bz2"
+            ]
+        },
+        {
+            "type": "command",
+            "commands": [
+                "bash -lc 'set -euo pipefail; ARCHIVE=\"teamspeak-server_linux_amd64-v${ts6_version}.tar.bz2\"; tar -xjf \"$ARCHIVE\"; if [ -d \"teamspeak-server_linux_amd64\" ]; then shopt -s dotglob; mv teamspeak-server_linux_amd64/* .; rmdir teamspeak-server_linux_amd64; fi; chmod +x tsserver'"
+            ]
+        }
+    ],
+    "uninstall": null,
+    "run": {
+        "command": "./tsserver --accept-license --default-voice-port ${voice_port} --filetransfer-port ${file_port} ${extra_args}",
+        "stop": "^C",
+        "stopCode": 130,
+        "environmentVars": {
+            "TSSERVER_LICENSE_ACCEPTED": "accept"
+        },
+        "stdin": {
+            "type": "stdin"
+        },
+        "autostart": false,
+        "autorecover": false,
+        "autorestart": false
+    },
+    "environment": {
+        "type": "host"
+    },
+    "supportedEnvironments": [
+        {
+            "type": "host"
+        }
+    ],
+    "requirements": {
+        "os": "linux",
+        "arch": "amd64"
+    },
+    "stats": {
+        "type": ""
+    },
+    "query": {
+        "type": ""
+    },
+    "keepAlive": {
+        "frequency": "",
+        "command": ""
+    },
+    "name": "TeamSpeak 6"
+}
